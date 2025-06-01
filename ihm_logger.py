@@ -258,6 +258,8 @@ root = tk.Tk()
 root.title("IHM LOGGER")
 root.geometry("800x1000")
 root.configure(bg=BG_COLOR)
+root.iconphoto(False, tk.PhotoImage(file='/home/arnaud/Bureau/RASADA/AAA_Projects/ihm_logger/log_icon.png'))
+
 
 # Définir une police plus grande pour le bouton de rafraîchissement
 refresh_font = tkfont.Font(size=16) # Ajustez la taille selon vos besoins
