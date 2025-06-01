@@ -3,12 +3,16 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, scrolledtext
 import os
 import datetime # Importation nécessaire pour la gestion du temps
+import tkinter.font as tkfont # Importation pour gérer les polices
 
 # Couleurs thème sombre
 BG_COLOR = "#2f2f2f"     # gris foncé
 FG_COLOR = "white"       # texte blanc
 BTN_BG = "#444444"       # bouton un peu plus clair
 BTN_FG = "white"
+REFRESH_BTN_BG = "#90EE90" # Vert clair pour le bouton rafraîchir
+REFRESH_BTN_FG = "black" # Texte noir pour le bouton rafraîchir (meilleur contraste)
+
 
 # Palette de couleurs pour les préfixes
 COLOR_PALETTE = [
@@ -27,6 +31,9 @@ COLOR_PALETTE = [
 
 # Variable globale pour stocker le contenu complet du fichier actuel
 contenu_fichier_actuel = ""
+# Variable globale pour stocker le chemin du fichier actuel
+chemin_fichier_actuel = ""
+
 
 def charger_options(chemin):
     try:
@@ -122,7 +129,7 @@ def appliquer_filtre_et_afficher(*args):
                 ligne_passe_prefixe_filtre = True
 
         # --- Appliquer le filtre horaire si actif ---
-        ligne_passe_heure_filtre = True # Par défaut, la ligne passe le filtre horaire si aucun filtre horaire n'est actif
+        ligne_passe_heure_filtre = True # Par default, la ligne passe le filtre horaire si aucun filtre horaire n'est actif
 
         if heure_filtre_actif:
             ligne_time = None
@@ -191,11 +198,13 @@ def appliquer_filtre_et_afficher(*args):
 
 def choisir_fichier():
     global contenu_fichier_actuel
+    global chemin_fichier_actuel # Déclarer la variable globale
     fichier = filedialog.askopenfilename(
         initialdir="/media/Rasada_MyUsb/LOG",
         filetypes=[("Fichiers LOG", "*.log")]
     )
     if fichier:
+        chemin_fichier_actuel = fichier # Stocker le chemin du fichier
         nom_fichier = os.path.basename(fichier)
         label_nom_fichier.config(text=nom_fichier)
 
@@ -224,11 +233,34 @@ def choisir_fichier():
             texte_widget.insert(tk.END, f"Erreur lors de la lecture du fichier :\n{e}")
             texte_widget.config(state=tk.DISABLED)
 
+# Nouvelle fonction pour rafraîchir le fichier
+def rafraichir_fichier():
+    global contenu_fichier_actuel
+    global chemin_fichier_actuel
+    if chemin_fichier_actuel: # Vérifier si un fichier est chargé
+        try:
+            with open(chemin_fichier_actuel, "r", encoding="utf-8") as f:
+                contenu_fichier_actuel = f.read()
+            appliquer_filtre_et_afficher() # Réappliquer les filtres et afficher
+        except Exception as e:
+            # Gérer l'erreur lors du rafraîchissement
+            contenu_fichier_actuel = ""
+            texte_widget.config(state=tk.NORMAL)
+            texte_widget.delete(1.0, tk.END)
+            texte_widget.insert(tk.END, f"Erreur lors du rafraîchissement du fichier :\n{e}")
+            texte_widget.config(state=tk.DISABLED)
+            messagebox.showerror("Erreur de rafraîchissement", f"Impossible de rafraîchir le fichier :\n{e}")
+    # else: # Optionnel : informer l'utilisateur qu'aucun fichier n'est chargé
+    #     messagebox.showinfo("Information", "Aucun fichier n'est actuellement chargé.")
+
 
 root = tk.Tk()
 root.title("IHM LOGGER")
 root.geometry("800x1000")
 root.configure(bg=BG_COLOR)
+
+# Définir une police plus grande pour le bouton de rafraîchissement
+refresh_font = tkfont.Font(size=16) # Ajustez la taille selon vos besoins
 
 # Ligne 1 : Choix de fichier
 frame_fichier = tk.Frame(root, bg=BG_COLOR)
@@ -267,6 +299,11 @@ entry_heure_fin.pack(side="left", padx=5)
 # Lier le changement de valeur du champ de saisie de fin à la fonction de mise à jour de l'affichage
 val_heure_fin.trace_add('write', appliquer_filtre_et_afficher)
 
+# Ajout du bouton de rafraîchissement
+btn_rafraichir = tk.Button(frame_heure_debut, text="↻", command=rafraichir_fichier,
+                           bg=REFRESH_BTN_BG, fg=REFRESH_BTN_FG, activebackground="#7CFC00", activeforeground="black", # Vert plus vif au clic
+                           relief="raised", width=9, font=refresh_font) # Augmentation de la largeur et application de la police
+btn_rafraichir.pack(side="right", padx=5) # Placer le bouton à droite
 
 val1 = tk.StringVar(value="Tout")
 val2 = tk.StringVar(value="Aucune sélection")
