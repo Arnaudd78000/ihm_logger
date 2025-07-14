@@ -199,8 +199,13 @@ def appliquer_filtre_et_afficher(*args):
 def choisir_fichier():
     global contenu_fichier_actuel
     global chemin_fichier_actuel # Déclarer la variable globale
+    # Choix du dossier initial selon le logger
+    if val_logger.get() == "Réseau":
+        dossier_initial = "/media/Rasada_MyUsb/LOG"
+    else:
+        dossier_initial = "/home/arnaud/Bureau/RASADA/AAA_Projects/LOG"
     fichier = filedialog.askopenfilename(
-        initialdir="/media/Rasada_MyUsb/LOG",
+        initialdir=dossier_initial,
         filetypes=[("Fichiers LOG", "*.log")]
     )
     if fichier:
@@ -209,7 +214,11 @@ def choisir_fichier():
         label_nom_fichier.config(text=nom_fichier)
 
         dossier_parent = os.path.basename(os.path.dirname(fichier))
-        chemin_options = f"/media/Rasada_MyUsb/LOG/fonction_log_{dossier_parent}.txt"
+        # Adapter chemin_options selon le logger
+        if val_logger.get() == "Réseau":
+            chemin_options = f"/media/Rasada_MyUsb/LOG/fonction_log_{dossier_parent}.txt"
+        else:
+            chemin_options = f"/home/arnaud/Bureau/RASADA/AAA_Projects/LOG/fonction_log_{dossier_parent}.txt"
 
         options = charger_options(chemin_options)
 
@@ -263,6 +272,20 @@ root.iconphoto(False, tk.PhotoImage(file='/home/arnaud/Bureau/RASADA/AAA_Project
 
 # Définir une police plus grande pour le bouton de rafraîchissement
 refresh_font = tkfont.Font(size=16) # Ajustez la taille selon vos besoins
+
+# Ajout du choix du logger (PC ou Réseau) avec boutons radio de même taille
+frame_logger = tk.Frame(root, bg=BG_COLOR)
+frame_logger.pack(fill="x", padx=10, pady=8)
+
+label_logger = tk.Label(frame_logger, text="Logger :", bg=BG_COLOR, fg=FG_COLOR)
+label_logger.pack(side="left", padx=5)
+
+val_logger = tk.StringVar(value="PC")
+radio_width = 10  # Largeur identique pour les deux boutons radio
+radio_pc = tk.Radiobutton(frame_logger, text="PC", variable=val_logger, value="PC", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+radio_pc.pack(side="left", padx=5)
+radio_reseau = tk.Radiobutton(frame_logger, text="Réseau", variable=val_logger, value="Réseau", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+radio_reseau.pack(side="left", padx=5)
 
 # Ligne 1 : Choix de fichier
 frame_fichier = tk.Frame(root, bg=BG_COLOR)
