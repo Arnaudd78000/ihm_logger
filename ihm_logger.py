@@ -200,10 +200,11 @@ def choisir_fichier():
     global contenu_fichier_actuel
     global chemin_fichier_actuel # Déclarer la variable globale
     # Choix du dossier initial selon le logger
-    if val_logger.get() == "Réseau":
-        dossier_initial = "/media/Rasada_MyUsb/LOG"
-    else:
-        dossier_initial = "/home/arnaud/Bureau/RASADA/AAA_Projects/LOG"
+    if val_logger.get() == "ihm_q":
+        dossier_initial = "/home/arnaud/Bureau/RASADA/AAA_Projects/LOG/ihm_q_log_files/"
+    else :
+        dossier_initial = "/media/Rasada_MyUsb/LOG/"+ val_logger.get()
+    print(dossier_initial)
     fichier = filedialog.askopenfilename(
         initialdir=dossier_initial,
         filetypes=[("Fichiers LOG", "*.log")]
@@ -215,10 +216,11 @@ def choisir_fichier():
 
         dossier_parent = os.path.basename(os.path.dirname(fichier))
         # Adapter chemin_options selon le logger
-        if val_logger.get() == "Réseau":
-            chemin_options = f"/media/Rasada_MyUsb/LOG/fonction_log_{dossier_parent}.txt"
-        else:
+        print(val_logger.get())
+        if val_logger.get() == "ihm_q":
             chemin_options = f"/home/arnaud/Bureau/RASADA/AAA_Projects/LOG/fonction_log_{dossier_parent}.txt"
+        else:
+            chemin_options = f"/media/Rasada_MyUsb/LOG/fonction_log_{dossier_parent}.txt"
 
         options = charger_options(chemin_options)
 
@@ -263,9 +265,54 @@ def rafraichir_fichier():
     #     messagebox.showinfo("Information", "Aucun fichier n'est actuellement chargé.")
 
 
+def charger_fichier_recent():
+    global contenu_fichier_actuel
+    global chemin_fichier_actuel
+    # Déterminer le dossier selon val_logger
+    if val_logger.get() == "ihm_q":
+        dossier = "/home/arnaud/Bureau/RASADA/AAA_Projects/LOG/ihm_q_log_files/"
+    elif val_logger.get() == "nodered":
+        dossier = "/media/Rasada_MyUsb/LOG/nodered"
+    elif val_logger.get() == "nodered_garage":
+        dossier = "/media/Rasada_MyUsb/LOG/nodered_garage"
+    elif val_logger.get() == "ihm_sdb_log_files":
+        dossier = "/media/Rasada_MyUsb/LOG/ihm_sdb_log_files"
+    else:
+        dossier = "/media/Rasada_MyUsb/LOG/"
+    try:
+        fichiers = [os.path.join(dossier, f) for f in os.listdir(dossier) if f.endswith('.log')]
+        if not fichiers:
+            messagebox.showwarning("Aucun fichier log", f"Aucun fichier .log trouvé dans {dossier}")
+            return
+        fichier_recent = max(fichiers, key=os.path.getmtime)
+        chemin_fichier_actuel = fichier_recent
+        nom_fichier = os.path.basename(fichier_recent)
+        label_nom_fichier.config(text=nom_fichier)
+        dossier_parent = os.path.basename(os.path.dirname(fichier_recent))
+        # Adapter chemin_options selon le logger
+        if val_logger.get() == "ihm_q":
+            chemin_options = f"/home/arnaud/Bureau/RASADA/AAA_Projects/LOG/fonction_log_{dossier_parent}.txt"
+        else:
+            chemin_options = f"/media/Rasada_MyUsb/LOG/fonction_log_{dossier_parent}.txt"
+        options = charger_options(chemin_options)
+        if not options:
+            messagebox.showwarning("Fichier introuvable", f"Fichier non trouvé ou vide :\n{chemin_options}")
+        mettre_a_jour_menus(options)
+        # Lire le contenu complet et le stocker
+        with open(fichier_recent, "r", encoding="utf-8") as f:
+            contenu_fichier_actuel = f.read()
+        appliquer_filtre_et_afficher()
+    except Exception as e:
+        contenu_fichier_actuel = ""
+        texte_widget.config(state=tk.NORMAL)
+        texte_widget.delete(1.0, tk.END)
+        texte_widget.insert(tk.END, f"Erreur lors de la lecture du fichier :\n{e}")
+        texte_widget.config(state=tk.DISABLED)
+
+
 root = tk.Tk()
 root.title("IHM LOGGER")
-root.geometry("800x1000")
+root.geometry("800x1000+1100+0") # Positionner la fenêtre à 400 pixels du haut de l'écran
 root.configure(bg=BG_COLOR)
 root.iconphoto(False, tk.PhotoImage(file='/home/arnaud/Bureau/RASADA/AAA_Projects/ihm_logger/log_icon.png'))
 
@@ -280,12 +327,16 @@ frame_logger.pack(fill="x", padx=10, pady=8)
 label_logger = tk.Label(frame_logger, text="Logger :", bg=BG_COLOR, fg=FG_COLOR)
 label_logger.pack(side="left", padx=5)
 
-val_logger = tk.StringVar(value="PC")
-radio_width = 10  # Largeur identique pour les deux boutons radio
-radio_pc = tk.Radiobutton(frame_logger, text="PC", variable=val_logger, value="PC", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+val_logger = tk.StringVar(value="ihm_q")
+radio_width = 12  # Largeur identique pour les deux boutons radio
+radio_pc = tk.Radiobutton(frame_logger, text="ihm_Q", variable=val_logger, value="ihm_q", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
 radio_pc.pack(side="left", padx=5)
-radio_reseau = tk.Radiobutton(frame_logger, text="Réseau", variable=val_logger, value="Réseau", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
-radio_reseau.pack(side="left", padx=5)
+radio_nodered = tk.Radiobutton(frame_logger, text="Nodered Ras", variable=val_logger, value="nodered", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+radio_nodered.pack(side="left", padx=5)
+radio_nodered_gar = tk.Radiobutton(frame_logger, text="Nodered Gar", variable=val_logger, value="nodered_garage", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+radio_nodered_gar.pack(side="left", padx=5)
+radio_nodered_sdb = tk.Radiobutton(frame_logger, text="ihm_SdB", variable=val_logger, value="ihm_sdb_log_files", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+radio_nodered_sdb.pack(side="left", padx=5)
 
 # Ligne 1 : Choix de fichier
 frame_fichier = tk.Frame(root, bg=BG_COLOR)
@@ -357,5 +408,6 @@ texte_widget.config(state=tk.DISABLED) # Rendre le widget en lecture seule par d
 for i, color in enumerate(COLOR_PALETTE):
     texte_widget.tag_config(f"color{i}", foreground=color)
 
+val_logger.trace_add('write', lambda *args: charger_fichier_recent())
 
 root.mainloop()
