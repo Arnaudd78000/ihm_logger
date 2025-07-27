@@ -264,6 +264,7 @@ def rafraichir_fichier():
     # else: # Optionnel : informer l'utilisateur qu'aucun fichier n'est chargé
     #     messagebox.showinfo("Information", "Aucun fichier n'est actuellement chargé.")
 
+
 def charger_fichier_recent():
     global contenu_fichier_actuel
     global chemin_fichier_actuel
@@ -317,7 +318,7 @@ root.iconphoto(False, tk.PhotoImage(file='/home/arnaud/Bureau/RASADA/AAA_Project
 
 
 # Définir une police plus grande pour le bouton de rafraîchissement
-refresh_font = tkfont.Font(size=48) # Ajustez la taille selon vos besoins
+refresh_font = tkfont.Font(size=16) # Ajustez la taille selon vos besoins
 
 # Ajout du choix du logger (PC ou Réseau) avec boutons radio de même taille
 frame_logger = tk.Frame(root, bg=BG_COLOR)
@@ -374,38 +375,28 @@ entry_heure_fin.pack(side="left", padx=5)
 # Lier le changement de valeur du champ de saisie de fin à la fonction de mise à jour de l'affichage
 val_heure_fin.trace_add('write', appliquer_filtre_et_afficher)
 
+# Ajout du bouton de rafraîchissement
+btn_rafraichir = tk.Button(frame_heure_debut, text="↻", command=rafraichir_fichier,
+                           bg=REFRESH_BTN_BG, fg=REFRESH_BTN_FG, activebackground="#7CFC00", activeforeground="black", # Vert plus vif au clic
+                           relief="raised", width=9, font=refresh_font) # Augmentation de la largeur et application de la police
+btn_rafraichir.pack(side="right", padx=5) # Placer le bouton à droite
+
 val1 = tk.StringVar(value="Tout")
 val2 = tk.StringVar(value="Aucune sélection")
 val3 = tk.StringVar(value="Aucune sélection")
 menus = []
 
-# Frame global contenant les 3 menus + bouton vertical
-frame_filtres = tk.Frame(root, bg=BG_COLOR)
-frame_filtres.pack(fill="x", padx=10, pady=5)
-
-# Sous-frame à gauche pour empiler les menus
-frame_menus = tk.Frame(frame_filtres, bg=BG_COLOR)
-frame_menus.pack(side="left", fill="x", expand=True)
-
-# Créer les 3 OptionMenus empilés
 for val in [val1, val2, val3]:
-    frame_row = tk.Frame(frame_menus, bg=BG_COLOR)
-    frame_row.pack(fill="x", pady=1)
-    
-    option_menu = tk.OptionMenu(frame_row, val, "Tout", "Aucune sélection")
-    option_menu.config(width=75, anchor="w", bg=BG_COLOR, fg=FG_COLOR, relief="flat")
+    frame_menu = tk.Frame(root, bg=BG_COLOR)
+    frame_menu.pack(fill="x", padx=10, pady=2)
+
+    option_menu = tk.OptionMenu(frame_menu, val, "Tout", "Aucune sélection")
+    option_menu.config(width=100, anchor="w", bg=BG_COLOR, fg=FG_COLOR, relief="flat")
     option_menu["menu"].config(bg=BG_COLOR, fg=FG_COLOR)
     option_menu.pack(fill="x")
-    
     menus.append(option_menu)
+    # Lier le changement de valeur à la fonction de mise à jour de l'affichage
     val.trace_add('write', appliquer_filtre_et_afficher)
-
-
-# Ajout du bouton de rafraîchissement
-btn_rafraichir = tk.Button(frame_filtres, text="↻", command=rafraichir_fichier,
-                           bg=REFRESH_BTN_BG, fg=REFRESH_BTN_FG, activebackground="#7CFC00", activeforeground="black", # Vert plus vif au clic
-                           relief="raised", width=9, font=refresh_font) # Augmentation de la largeur et application de la police
-btn_rafraichir.pack(side="right", fill="y", padx=5) # Placer le bouton à droite
 
 
 # Widget pour afficher le contenu du fichier
