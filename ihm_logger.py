@@ -17,7 +17,7 @@ REFRESH_BTN_FG = "black" # Texte noir pour le bouton rafraîchir (meilleur contr
 # Palette de couleurs pour les préfixes
 COLOR_PALETTE = [
 
-    "#00FF00", # Vert
+    "#00FF00", # Vert F0
     "#0000FF", # Bleu
     "#FFFF00", # Jaune
     "#FF00FF", # Magenta
@@ -25,7 +25,7 @@ COLOR_PALETTE = [
     "#FFA500", # Orange
     "#800080", # Violet
     "#808000", # Olive
-    "#8B4513",  # Marron
+    "#00FFFF",  # Cyan F8
     "#FF0000" # Rouge
 ]
 
