@@ -1,3 +1,4 @@
+
 # File: ihm_logger.py
 import tkinter as tk
 from tkinter import filedialog, messagebox, scrolledtext
@@ -264,9 +265,10 @@ def rafraichir_fichier():
     # else: # Optionnel : informer l'utilisateur qu'aucun fichier n'est chargé
     #     messagebox.showinfo("Information", "Aucun fichier n'est actuellement chargé.")
 
-def charger_fichier_recent():
+def action_selection_radio():
     global contenu_fichier_actuel
     global chemin_fichier_actuel
+
     # Déterminer le dossier selon val_logger
     if val_logger.get() == "ihm_q":
         dossier = "/home/arnaud/Bureau/RASADA/AAA_Projects/LOG/ihm_q_log_files/"
@@ -278,6 +280,18 @@ def charger_fichier_recent():
         dossier = "/media/Rasada_MyUsb/LOG/ihm_sdb_log_files"
     else:
         dossier = "/media/Rasada_MyUsb/LOG/"
+
+    # for key, bouton in radio_buttons.items():
+    #     if val_logger.get() == key:
+    #         bouton.config(bg="blue")
+    #     else:
+    #         bouton.config(bg=BG_COLOR)
+
+    # Vérifie si le dossier existe
+    if not os.path.exists(dossier):
+        messagebox.showerror("Disque non monté", f"Le dossier {dossier} est introuvable.\nLe disque est-il présent ?")
+        return
+
     try:
         fichiers = [os.path.join(dossier, f) for f in os.listdir(dossier) if f.endswith('.log')]
         if not fichiers:
@@ -327,14 +341,15 @@ label_logger = tk.Label(frame_logger, text="Logger :", bg=BG_COLOR, fg=FG_COLOR)
 label_logger.pack(side="left", padx=5)
 
 val_logger = tk.StringVar(value="ihm_q")
+
 radio_width = 12  # Largeur identique pour les deux boutons radio
-radio_pc = tk.Radiobutton(frame_logger, text="ihm_Q", variable=val_logger, value="ihm_q", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+radio_pc = tk.Radiobutton(frame_logger, text="ihm_Q", variable=val_logger, value="ihm_q", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor="blue", activebackground="red", activeforeground=FG_COLOR,  indicatoron=False)
 radio_pc.pack(side="left", padx=5)
-radio_nodered = tk.Radiobutton(frame_logger, text="Nodered Ras", variable=val_logger, value="nodered", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+radio_nodered = tk.Radiobutton(frame_logger, text="Nodered Ras", variable=val_logger, value="nodered", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor="blue", activebackground="red", activeforeground=FG_COLOR,  indicatoron=False)
 radio_nodered.pack(side="left", padx=5)
-radio_nodered_gar = tk.Radiobutton(frame_logger, text="Nodered Gar", variable=val_logger, value="nodered_garage", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+radio_nodered_gar = tk.Radiobutton(frame_logger, text="Nodered Gar", variable=val_logger, value="nodered_garage", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor="blue", activebackground="red", activeforeground=FG_COLOR,  indicatoron=False)
 radio_nodered_gar.pack(side="left", padx=5)
-radio_nodered_sdb = tk.Radiobutton(frame_logger, text="ihm_SdB", variable=val_logger, value="ihm_sdb_log_files", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor=BG_COLOR, activebackground=BG_COLOR, activeforeground=FG_COLOR)
+radio_nodered_sdb = tk.Radiobutton(frame_logger, text="ihm_SdB", variable=val_logger, value="ihm_sdb_log_files", width=radio_width, bg=BG_COLOR, fg=FG_COLOR, selectcolor="blue", activebackground="red", activeforeground=FG_COLOR,  indicatoron=False)
 radio_nodered_sdb.pack(side="left", padx=5)
 
 # Ligne 1 : Choix de fichier
@@ -342,7 +357,7 @@ frame_fichier = tk.Frame(root, bg=BG_COLOR)
 frame_fichier.pack(fill="x", padx=10, pady=2)
 
 btn_choisir = tk.Button(frame_fichier, text="Choisir un fichier", command=choisir_fichier,
-                        bg=BTN_BG, fg=BTN_FG, activebackground="#555555", activeforeground=FG_COLOR,
+                        bg=BTN_BG, fg=BTN_FG, activebackground="red", activeforeground=FG_COLOR,
                         relief="raised")
 btn_choisir.pack(side="left", padx=5, pady=2)
 
@@ -417,6 +432,6 @@ texte_widget.config(state=tk.DISABLED) # Rendre le widget en lecture seule par d
 for i, color in enumerate(COLOR_PALETTE):
     texte_widget.tag_config(f"color{i}", foreground=color)
 
-val_logger.trace_add('write', lambda *args: charger_fichier_recent())
+val_logger.trace_add('write', lambda *args: action_selection_radio())
 
 root.mainloop()
